@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<parameters>
+<itop_url>http://192.168.56.1/itop221/</itop_url>
+<itop_login>itopsync</itop_login>
+<itop_password>49lWbkku7cvI</itop_password>
+<contact_to_notify></contact_to_notify>
+<synchro_user>admin</synchro_user>
+</parameters>

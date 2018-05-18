@@ -1,0 +1,87 @@
+General collector usage
+=======================
+
+0. Overview
+-----------
+
+Collectors require:
+- a synchronization data source (should be provided)
+- configuration (must be filled in for each specific use)
+
+They can then be run from the command line:
+$ php exec.php --configure_only
+$ php exec.php
+
+The configure_only command is recommended only before the first run of
+the collector as it will set up the data source in iTop.
+
+There are several useful command line options available:
+  --console_log_level=<lvl> -1 for none, 7 is maximum verbosity.
+
+  --collect_only            Stores collected data in data dir
+                            but doesn't update iTop.
+
+  --synchro_only            Update iTop from data dir.
+
+  --configure_only          Check/update synchro data sources
+                            without running collection/synchro.
+
+  --max_chunk_size=<n>      Limit to n items per pass if memory
+                            is an issue.
+
+1. Configuration
+----------------
+
+Two configuration files must be created from the provided templates.
+- conf/params.local.xml (from conf/params.template.xml)
+- collectors/params.distrib.xml (from collectors/params.template.xml)
+
+The general configuration file is conf/params.local.xml.
+It *must* be edited with the iTop login details. The following
+parameters are essential:
+- itop_url
+- itop_login
+- itop_password
+
+Collector-specific configuration takes place in
+collectors/params.distrib.xml.
+
+Documentation for collector-specific configuration resides in the
+corresponding params file.
+
+2. Data synchronization sources
+-------------------------------
+
+Although collectors should come with a data synchronization source
+JSON file, it may be necessary to generate one in special cases
+(e.g. custom iTop data model).
+
+While the JSON files found in the collectors/ directory may be edited
+manually, the easiest way to generate a data source file is to use the
+toolkit generator.
+
+First, create the data source in iTop (Admin tools -> Synchronization
+Data Sources) for the relevant object type.
+
+Next, ensure that reconciliation and update only take place using the
+columns which will be collected - these will be documented in the
+collector-specific documentation. Columns in a data source may be
+marked for reconciliation/update by viewing the data source in iTop,
+selecting the Attributes tab and clicking Modify...
+
+Ensure that you have the PHP class name of the collector which will use
+this data source, found in the collector's documentation. The name
+given to the synchronization data source is also required.
+
+The following command will dump the synchro data source into a JSON
+file in the collectors directory (note - command is one line and paths
+are relative to collector base director):
+
+$ php toolkit/dump_tasks.php --task_name="<itop-task-name>" >
+collectors/<collector-classname>.json
+
+It is recommended to run:
+$ php exec.php --configure_only
+before attempting to synchronize - this will ensure that the data
+sources are set up correctly in iTop before synchronization is
+attempted.

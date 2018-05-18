@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension format="1.0">
+	<extension_code>vsphere-data-collector</extension_code>
+	<company>Combodo SARL</company>
+	<author><![CDATA[Denis]]></author>
+	<label><![CDATA[vSphere Data Collector]]></label>
+	<description><![CDATA[Inventory Data Collector for VMWare Sphere]]></description>
+	<version>1.0.8</version>
+	<release_date>2018-02-22</release_date>
+	<version_description><![CDATA[**Bug fixes:**
+
+  * The os_version_mapping was used only for Hypervisors, made it work for VirtualMachines also.
+  * Proper support of UTF-8 characters in regular expressions (the code now always uses the 'u' modifier)]]></version_description>
+	<itop_version_min></itop_version_min>
+	<status></status>
+	<mandatory>false</mandatory>
+	<more_info_url></more_info_url>
+</extension>

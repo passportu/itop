@@ -1,0 +1,143 @@
+check_mk collector, Version 0.1.0, 05-2016,(c) ITOMIG GmbH, published under the AGPL licence
+For Documentation, see https://wiki.openitop.org/doku.php?id=extensions:check_mk-collector
+For professional support, feel free to get in touch with us: http://www.itomig.de/produkte/itop.html -> Kontakt
+
+
+check_mk collector usage
+========================
+
+
+0. Information
+--------------
+
+Inventory items are parsed from the files kept by check_mk inventory -
+by default, these files are in /var/lib/check_mk/inventory. This
+directory may be changed in CheckmkPCCollector.class.inc.php.
+
+iTop objects are collected in this order:
+- OS Family
+- OS Version
+- Brand
+- Model
+- PC
+- Server
+
+Hosts recorded in check_mk's inventory are categorised as PCs or Servers
+using the list of patterns specified in the type_mapping parameter.
+These patterns are applied to the host name of the inventory item. More
+documentation can be found in collectors/params.template.xml.
+
+The following data is collected for each PC and Server:
+- Name*            -- the check_mk hostname
+- Organization ID* -- set in CheckmkPCCollector.class.inc.php
+- CPU              -- the CPU model recorded by check_mk
+- RAM              -- the quantity of usable RAM recorded by check_mk
+                      in MiB
+- OS family        -- the OS type or part of the OS name in check_mk
+                      depending on the OS. Usually Windows or Linux.
+                      See osfamily_mapping config.
+- OS version       -- part of the OS name in check_mk - see
+                      osversion_mapping config
+- Brand            -- taken from the system vendor specified by check_mk
+                      - see brand_mapping config
+- Model            -- raw system family given by check_mk
+- Serial number    -- system serial specified by check_mk
+
+* data fields are non-optional
+
+Optional fields will be filled in if available.
+
+The 'name' field may be filled in with the networking hostname if it
+is recorded with check_mk - this may be different from the hostname
+as specified in check_mk/nagios. If this behaviour is preferred, set
+the <use_network_hostname> parameter to true.
+
+1. Configuration
+----------------
+
+First set itop configuration in conf/params.local.xml (see README).
+
+Configuration for the check_mk collector is found in
+collectors/params.distrib.xml.
+
+The following items MUST be configured:
+- default_org_id -- the org_id to use for each object
+- check_mk_dir   -- the directory containing inventory files
+
+The following pattern maps are used when extracting information. Note
+that if fields already exist in iTop, care should be taken to match
+them in the mapped values.
+
+Instructions for specifying patterns can be found in the param file.
+The current behaviour for values which don't match any specified pattern
+is to ignore it (set it to the empty string). As specified in the param
+file, a catch-all pattern that will return the raw value back if none
+of the other patterns match it can be specified:
+<pattern>/.*/%1$s</pattern>
+
+- osfamily_mapping  -- these patterns take the OS type and name field
+                       data and produce an OS family name
+- osversion_mapping -- the OS name is mapped to produce a version -
+                       this will almost always require additional
+                       patterns depending on the client's data.
+                       NOTE: MAPPED VALUES SHOULD NOT START WITH A
+                       NUMBER
+- brand_mapping     -- maps vendors to names - although a few are
+                       specified by default, more will likely be
+                       required in order to normalize client data
+- type_mapping      -- these patterns map host names to iTop object
+                       types. Defaults to 'Server' in the case of
+                       ancilliary type data (e.g. type field of a
+                       Model) and '' (none - ignored) in essential cases
+                       (i.e. deciding which synch data source to use)
+
+Default values for fields not filled by the collector may be specified.
+The syntax in the configuration file is as follows:
+<default_fields type="hash">
+  <field_name>field_value</field_name>
+</default_fields>
+
+This is most useful for fields such as business_criticity and status
+where a simple constant value for each piece of inventory found may
+be required. If values for these fields are not specified here, they
+are left blank.
+
+Other options:
+- use_network_hostname -- see above - use networking hostname if
+                          recorded by check_mk agent in inventory data
+
+The following are optional and relate to how files in the specified
+check_mk_dir directory are to be handled:
+- skip_gz  -- (default: true) the inventory directory specified above
+              generally contains gzipped versions of each file with the
+              naming convention [hostname].gz. These files are skipped
+              by default but if some odd case should come up (such as
+              a hostname ending with .gz), they may need to be
+              included in the parse.
+- skip_dot -- (default: true) the inventory directory may contain a
+              file named .last, as well as other misc dotfiles which
+              should be skipped by default.
+
+2. Using the collector
+----------------------
+
+Before the first collection, run:
+$ php exec.php --configure_only
+
+After that, and for any subsequent collection, run:
+$ php exec.php
+
+3. Known Issues
+---------------
+
+When creating synchro data sources from .json files, properties such
+as which attribute to reconcile foreign fields by and the
+locked/unlocked status of each field are NOT set correctly. To work
+around this, edit the data source in iTop once it has been created.
+The brand and org_id are expected to be reconciled by name and any
+attributes that are required to be updated by the collector or
+manually in iTop should be unlocked.
+
+iTop 2.2 does not work well with the task dumping tool in the collector
+toolkit. For now, use 2.1 to generate .json files representing data
+sources.

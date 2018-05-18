@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<parameters>
+  <!-- The org name to use for each object MUST be specified here -->
+  <default_org_id>LGB</default_org_id>
+
+  <!-- This directory will be used when looking for check_mk inventory
+       files -->
+  <check_mk_dir>/data/inventory/check_mk/inventory/</check_mk_dir>
+
+  <!-- Mapping patterns - these should be changed according to existing
+       data and desired output.
+       Pattern syntax is as follows: /pattern/replacement
+       pattern is a regex
+       replacement is text and can use variables as follows:
+         %1$s is the whole matched text
+         %2$s is the first group (delineated by parenthesis in the
+              pattern)
+              %3$s is the second group, and so on
+
+      The collectors will *ignore* any values that do not map to some
+      replacement. If instead the raw value should be used, insert the
+      following pattern at the end of the mapping list:
+      <pattern>/.*/$1$s</pattern>
+  -->
+
+  <osfamily_mapping type="array">
+    <pattern>/.*linux.*/Linux</pattern>
+    <pattern>/.*windows.*/Windows</pattern>
+    <pattern>/.*mac os.*/Mac OS</pattern>
+    <pattern>/.*solaris.*/Solaris</pattern>
+    <pattern>/.*bsd.*/BSD</pattern>
+    <!-- <pattern>/.*/$1$s</pattern> -->
+  </osfamily_mapping>
+
+  <osversion_mapping type="array">
+    <pattern>/(Microsoft Windows.*)/%2$s</pattern>
+    <pattern>/Ubuntu.*/%1$s</pattern>
+    <pattern>/Fedora release (.*)/Fedora %2$s</pattern>
+    <pattern>/Mac OS (.*)/%2$s</pattern>
+    <!-- <pattern>/.*/$1$s</pattern> -->
+  </osversion_mapping>
+
+  <brand_mapping type="array">
+    <pattern>/Dell.*/Dell</pattern>
+    <pattern>/FSC.*/Fujitsu</pattern>
+    <pattern>/FUJITSU.*/Fujitsu</pattern>
+    <pattern>/Hewlett.Packard/Hewlett Packard</pattern>
+    <pattern>/HP/Hewlett Packard</pattern>
+    <pattern>/Intel.*/Intel</pattern>
+    <pattern>/Lenovo.*/Lenovo</pattern>
+    <pattern>/SMC.*/SMC</pattern>
+    <pattern>/Tarox.*/Tarox</pattern>
+    <!-- <pattern>/.*/$1$s</pattern> -->
+  </brand_mapping>
+
+  <!-- Types are used in two places and hostnames are used for matching:
+       1. To ascertain whether the data should be collected by the PC
+       or Server collector.
+       2. To fill in the Model 'type' attribute
+  -->
+  <type_mapping type="array">
+	  <!-- http://perldoc.perl.org/perlre.html#Regular-Expressions
+		 .+ 1 bis n belibiege Zeichen
+	     .* 0 bis n belibiege Zeichen
+	     a+ mindestens 1 mal ein "a"
+	     pc[0-9]{3}.* = nach "pc" folgen 3 Ziffern (0-9) gefolgt von beliebigen Zeichen
+	     f[0-9]{2}[0-9]?.* = nach "f" folgen 2 Ziffern (0-9) gefolgt einer optionalen Ziffer(Bsp.: F23 und F171)
+		 pc[aaa]?[0-9]{3}.*		= "pc" muss vorkommen, "aaa" kann vorkommen, 3 Ziffern müssen vorkommen, Bsp.: pc756, pcaaa101
+	  -->
+	  <!-- PC-Namen -->
+      <pattern>/pc(aaa)?[0-9]{1,3}.*/PC</pattern>
+      <pattern>/f[0-9]{2,3}.*/PC</pattern>
+      <pattern>/upc[0-9]{2}.*/PC</pattern>
+      <pattern>/uws[0-9]{2}.*/PC</pattern>
+	  <!-- Neue Hostnamendefinition für PCs/VMs/Notebooks -->
+      <pattern>/[A-z]{1}-[A-z]{2,5}-[A-z]{2}[0-9]{3}.*/PC</pattern>
+	  <!-- Server -->
+      <pattern>/[A-z]{1}-[A-z]{2,8}-[A-z0-9]{2,5}-[A-z]{1}[0-9]{2}.*/Server</pattern>
+      <pattern>/[A-z]{1}(sv|vs){1}.*/Server</pattern>
+  </type_mapping>
+
+  <!-- Specify constant default values for fields here -->
+  <default_fields type="hash">
+    <!-- E.g.
+         <status>production</status>
+    -->
+  </default_fields>
+
+  <!-- Use networking hostname if it appears in check_mk inv data
+       instead of simply using the file name as the hostname -->
+  <use_network_hostname>true</use_network_hostname>
+
+  <!-- These options may be switched off if they are causing issues
+       (e.g. inventory files beginning with "." or ending with ".gz")
+       - .gz copies of each file are usually located in inventory dir
+         and thus need to be skipped
+       - a .last file is in the inventory dir and needs to be skipped
+         (as well as any other dotfiles kicking around) -->
+  <skip_gz>true</skip_gz>
+  <skip_dot>true</skip_dot>
+</parameters>

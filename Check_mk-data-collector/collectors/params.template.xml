@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<parameters>
+  <!-- The org name to use for each object MUST be specified here -->
+  <default_org_id>Demo</default_org_id>
+
+  <!-- This directory will be used when looking for check_mk inventory
+       files -->
+  <check_mk_dir>/var/lib/check_mk/inventory</check_mk_dir>
+
+  <!-- Mapping patterns - these should be changed according to existing
+       data and desired output.
+       Pattern syntax is as follows: /pattern/replacement
+       pattern is a regex
+       replacement is text and can use variables as follows:
+         %1$s is the whole matched text
+         %2$s is the first group (delineated by parenthesis in the
+              pattern)
+              %3$s is the second group, and so on
+
+      The collectors will *ignore* any values that do not map to some
+      replacement. If instead the raw value should be used, insert the
+      following pattern at the end of the mapping list:
+      <pattern>/.*/$1$s</pattern>
+  -->
+
+  <osfamily_mapping type="array">
+    <pattern>/.*linux.*/Linux</pattern>
+    <pattern>/.*windows.*/Windows</pattern>
+    <pattern>/.*mac os.*/Mac OS</pattern>
+    <pattern>/.*solaris.*/Solaris</pattern>
+    <pattern>/.*bsd.*/BSD</pattern>
+    <!-- <pattern>/.*/$1$s</pattern> -->
+  </osfamily_mapping>
+
+  <osversion_mapping type="array">
+    <pattern>/Microsoft (Windows.*)/%2$s</pattern>
+    <pattern>/Ubuntu.*/%1$s</pattern>
+    <pattern>/Fedora release (.*)/Fedora %2$s</pattern>
+    <pattern>/Mac OS (.*)/%2$s</pattern>
+    <!-- <pattern>/.*/$1$s</pattern> -->
+  </osversion_mapping>
+
+  <brand_mapping type="array">
+    <pattern>/Hewlett.Packard/Hewlett-Packard</pattern>
+    <pattern>/HP/Hewlett-Packard</pattern>
+    <pattern>/FUJITSU/Fujitsu</pattern>
+    <!-- <pattern>/.*/$1$s</pattern> -->
+  </brand_mapping>
+
+  <!-- Types are used in two places and hostnames are used for matching:
+       1. To ascertain whether the data should be collected by the PC
+       or Server collector.
+       2. To fill in the Model 'type' attribute
+  -->
+  <type_mapping type="array">
+    <pattern>/.*pc.*/PC</pattern>
+    <pattern>/.*srv.*/Server</pattern>
+  </type_mapping>
+
+  <!-- Specify constant default values for fields here -->
+  <default_fields type="hash">
+    <!-- E.g.
+         <status>production</status>
+    -->
+  </default_fields>
+
+  <!-- Use networking hostname if it appears in check_mk inv data
+       instead of simply using the file name as the hostname -->
+  <use_network_hostname>true</use_network_hostname>
+
+  <!-- These options may be switched off if they are causing issues
+       (e.g. inventory files beginning with "." or ending with ".gz")
+       - .gz copies of each file are usually located in inventory dir
+         and thus need to be skipped
+       - a .last file is in the inventory dir and needs to be skipped
+         (as well as any other dotfiles kicking around) -->
+  <skip_gz>true</skip_gz>
+  <skip_dot>true</skip_dot>
+</parameters>
